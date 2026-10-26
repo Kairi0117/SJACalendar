@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "recipe": {
+    "name": "Next.js",
+    "kind": "nextjs",
+    "bootstrap": [
+      "npm install"
+    ],
+    "build": [
+      "npm run build"
+    ],
+    "test": [
+      "npm run lint"
+    ],
+    "start": "npm run dev",
+    "port": 3000,
+    "readinessPath": "/",
+    "evidence": [
+      "Detected package.json",
+      "Package manager: npm",
+      "Scripts: dev, build, start, lint"
+    ]
+  },
+  "updatedAt": "2026-10-26T11:34:12.622041+00:00"
+}

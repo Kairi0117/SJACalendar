@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F5F1EA;
+  --foreground: #4A342A;
+  --primary: #B2967D;
+  --secondary: #7D5A4A;
+  --accent: #D7C9B8;
+  --card: #ffffff;
+  --border: #D7C9B8;
+  --muted: #E8E0D4;
+}
+
+.dark {
+  --background: #4F382E;
+  --foreground: #F5F1EA;
+  --primary: #D7C9B8;
+  --secondary: #B2967D;
+  --accent: #B2967D;
+  --card: #63483A;
+  --border: #8A6A5A;
+  --muted: #4A342A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Enriched UI helpers */
+.card-elevated {
+  box-shadow: 0 1px 2px rgba(74, 52, 42, 0.06), 0 8px 24px rgba(74, 52, 42, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card-elevated:hover {
+  box-shadow: 0 2px 4px rgba(74, 52, 42, 0.08), 0 12px 32px rgba(74, 52, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+.dark .card-elevated {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dark .card-elevated:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+/* Sonner toast styling using our palette */
+[data-sonner-toaster] [data-sonner-toast] {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(74, 52, 42, 0.15);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  border-color: var(--primary);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  border-color: var(--secondary);
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: var(--foreground);
+  opacity: 0.75;
+}
+
+body {
+  background-color: var(--background);
+  background-image: radial-gradient(rgba(74, 52, 42, 0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Touch targets.
+   The app's buttons are 32-42px tall, which is fine with a mouse but below the
+   44px minimum for a finger. Scoped to phone-width screens so the desktop
+   layout is untouched. Inline links are excluded on purpose — forcing them to
+   44px would break links inside running text. */
+@media (max-width: 767px) {
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+.dark body {
+  background-color: var(--background);
+  background-image: radial-gradient(rgba(245, 241, 234, 0.05) 1px, transparent 1px),
+                   radial-gradient(1200px 600px at 15% -5%, rgba(178, 150, 125, 0.20), transparent 60%),
+                   radial-gradient(900px 500px at 85% 5%, rgba(125, 90, 74, 0.25), transparent 60%);
+  background-size: 22px 22px, 100% 100%, 100% 100%;
+}

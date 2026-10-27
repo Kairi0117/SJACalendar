@@ -50,8 +50,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate and store verification code
+    // Generate verification code. Send the email BEFORE persisting the
+    // verification record — if SMTP fails, we must not store a code the
+    // parent can't receive, and we must not let the failure trip the
+    // rate-limiter (which counts stored email_verifications rows).
     const code = generateVerificationCode();
+    const mailResult = await sendEmailSafe(
+      email,
+      "Your registration code",
+      verificationEmailHtml(code)
+    );
+
+    if (!mailResult.ok) {
+      // Email failed — surface the real error as 502 so it shows in logs
+      // and the client can display a meaningful message. The 60-second
+      // rate-limit is NOT consumed because no row was inserted.
+      console.error("Registration email failed:", mailResult.error);
+      return NextResponse.json(
+        {
+          error:
+            "Could not send the verification email. Please check your SMTP " +
+            "settings and try again.",
+          emailError: mailResult.error,
+        },
+        { status: 502 }
+      );
+    }
+
+    // Email sent successfully — now persist the verification token so the
+    // verify step can match it.
     const codeHash = await hashSecret(code);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
@@ -62,23 +89,10 @@ export async function POST(req: NextRequest) {
       used: false,
     });
 
-    // Store pending registration data? We'll re-verify student on verify step by re-checking.
-    // For simplicity, store student_id in a temp way via the email verification row isn't possible.
-    // Instead, verify step re-checks student by re-submitting student details.
-    // We'll pass studentId back to client to include in verify step.
-    const mailResult = await sendEmailSafe(
-      email,
-      "Your registration code",
-      verificationEmailHtml(code)
-    );
-    // A mail failure is not fatal: the verification code is stored and
-    // the parent can request a resend. Surface the error so the UI can warn
-    // without breaking the registration flow entirely.
     return NextResponse.json({
       ok: true,
       studentId: student.id,
-      emailSent: mailResult.ok,
-      emailError: mailResult.ok ? undefined : mailResult.error,
+      emailSent: true,
     });
   } catch (err) {
     console.error(err);

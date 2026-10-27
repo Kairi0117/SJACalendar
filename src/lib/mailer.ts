@@ -22,6 +22,23 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   });
 }
 
+export async function sendEmailSafe(
+  to: string,
+  subject: string,
+  html: string
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await sendEmail(to, subject, html);
+    return { ok: true };
+  } catch (err: unknown) {
+    // Never let an email delivery failure crash the calling API route.
+    // Log for visibility; the route continues and can surface a warning.
+    const msg = err instanceof Error ? err.message : "send failed";
+    console.error("sendEmail failed:", msg);
+    return { ok: false, error: msg };
+  }
+}
+
 export function verificationEmailHtml(code: string): string {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">

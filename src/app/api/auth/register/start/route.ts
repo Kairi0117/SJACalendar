@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { findStudent } from "@/lib/students";
 import { hashSecret, generateVerificationCode } from "@/lib/auth";
-import { sendEmail, verificationEmailHtml } from "@/lib/mailer";
+import { sendEmailSafe, verificationEmailHtml } from "@/lib/mailer";
 
 const GENERIC_ERROR = "Student verification failed. Please check your details.";
 
@@ -66,9 +66,20 @@ export async function POST(req: NextRequest) {
     // For simplicity, store student_id in a temp way via the email verification row isn't possible.
     // Instead, verify step re-checks student by re-submitting student details.
     // We'll pass studentId back to client to include in verify step.
-    await sendEmail(email, "Your registration code", verificationEmailHtml(code));
-
-    return NextResponse.json({ ok: true, studentId: student.id });
+    const mailResult = await sendEmailSafe(
+      email,
+      "Your registration code",
+      verificationEmailHtml(code)
+    );
+    // A mail failure is not fatal: the verification code is stored and
+    // the parent can request a resend. Surface the error so the UI can warn
+    // without breaking the registration flow entirely.
+    return NextResponse.json({
+      ok: true,
+      studentId: student.id,
+      emailSent: mailResult.ok,
+      emailError: mailResult.ok ? undefined : mailResult.error,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });

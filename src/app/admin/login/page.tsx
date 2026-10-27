@@ -114,7 +114,7 @@ export default function AdminLogin() {
           </p>
         </div>
 
-        <div className="bg-card rounded-xl shadow-lg border border-border p-6 sm:p-7 card-elevated relative overflow-hidden">
+        <div className="bg-card rounded-xl shadow-lg border border-border px-4 py-6 sm:p-7 card-elevated relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)" }}></div>
           <form className="space-y-5" onSubmit={handleLogin} noValidate>
             <div>

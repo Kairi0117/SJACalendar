@@ -49,6 +49,11 @@ export default function Register() {
         toast.error(data.error || "Registration failed.");
       } else {
         setStep(2);
+        // If the email didn't send, warn the parent but still let them
+        // enter the code (admin can re-send via the resend flow).
+        if (data.emailSent === false) {
+          toast.warning("We couldn't send your email code. Check SMTP settings and try resending, or ask your school admin to check the server logs.");
+        }
       }
     } catch {
       toast.error("Network error. Please try again.");

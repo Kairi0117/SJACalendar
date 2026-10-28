@@ -44,6 +44,9 @@ export default function AdminEventsPage() {
     alreadyNotified: number;
     sending: boolean;
   } | null>(null);
+  const [viewEvent, setViewEvent] = useState<EventRow | null>(null);
+  const [view, setView] = useState<"upcoming" | "past">("upcoming");
+  const [monthFilter, setMonthFilter] = useState("");
 
   const load = async () => {
     try {
@@ -187,6 +190,64 @@ export default function AdminEventsPage() {
     }
   };
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+  const upcomingEvents = events.filter((e) => new Date(e.event_date + "T00:00:00") >= today);
+  // Past events decay after one month: only this month's past events stay visible.
+  const pastEvents = events.filter(
+    (e) => new Date(e.event_date + "T00:00:00") < today && e.event_date.startsWith(currentMonth)
+  );
+  const baseList = view === "upcoming" ? upcomingEvents : pastEvents;
+  const monthOptions = Array.from(new Set(events.map((e) => e.event_date.slice(0, 7)))).sort();
+  const filteredEvents = monthFilter
+    ? baseList.filter((e) => e.event_date.startsWith(monthFilter))
+    : baseList;
+
+  const downloadCsv = () => {
+    const header = ["Title", "Date", "Start Time", "End Time", "Location", "Grades", "All Grades"];
+    const rows = filteredEvents.map((e) => [
+      `"${e.title.replace(/"/g, '""')}"`,
+      e.event_date,
+      e.start_time ?? "",
+      e.end_time ?? "",
+      `"${(e.location ?? "").replace(/"/g, '""')}"`,
+      `"${(e.all_grades ? "All grades" : e.grade_levels.join("; ")).replace(/"/g, '""')}"`,
+      e.all_grades ? "Yes" : "No",
+    ]);
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `events-${view}-${monthFilter || "all"}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Full history backup (all months) so older decayed events are never lost.
+  const downloadBackupCsv = () => {
+    const sorted = [...events].sort((a, b) => a.event_date.localeCompare(b.event_date));
+    const header = ["Title", "Date", "Start Time", "End Time", "Location", "Grades", "All Grades"];
+    const rows = sorted.map((e) => [
+      `"${e.title.replace(/"/g, '""')}"`,
+      e.event_date,
+      e.start_time ?? "",
+      e.end_time ?? "",
+      `"${(e.location ?? "").replace(/"/g, '""')}"`,
+      `"${(e.all_grades ? "All grades" : e.grade_levels.join("; ")).replace(/"/g, '""')}"`,
+      e.all_grades ? "Yes" : "No",
+    ]);
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `events-backup-all-months.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const inputClasses =
     "w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all";
 
@@ -196,14 +257,75 @@ export default function AdminEventsPage() {
         <h1 className="text-xl font-bold">Manage Events</h1>
 
 
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Events ({events.length})</h2>
-          <button
-            onClick={openCreate}
-            className="px-4 py-2 text-sm font-medium bg-secondary text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            + New Event
-          </button>
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-lg font-semibold">
+              {view === "upcoming" ? "Upcoming" : "Past"} Events ({filteredEvents.length})
+            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={downloadCsv}
+                disabled={filteredEvents.length === 0}
+                className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-background transition-colors disabled:opacity-50"
+              >
+                Download CSV
+              </button>
+              <button
+                onClick={downloadBackupCsv}
+                disabled={events.length === 0}
+                className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-background transition-colors disabled:opacity-50"
+              >
+                Download full history (backup)
+              </button>
+              <button
+                onClick={openCreate}
+                className="px-4 py-2 text-sm font-medium bg-secondary text-white rounded-lg hover:opacity-90 transition-opacity"
+              >
+                + New Event
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setView("upcoming")}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  view === "upcoming"
+                    ? "bg-secondary text-white"
+                    : "bg-background text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                Upcoming ({upcomingEvents.length})
+              </button>
+              <button
+                onClick={() => setView("past")}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  view === "past"
+                    ? "bg-secondary text-white"
+                    : "bg-background text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                Past ({pastEvents.length})
+              </button>
+            </div>
+
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="px-3 py-1.5 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+            >
+              <option value="">All months</option>
+              {monthOptions.map((m) => (
+                <option key={m} value={m}>
+                  {new Date(m + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-foreground/50">
+            Past events older than the current month decay from this view; use “Download full history (backup)” to retrieve them.
+          </p>
         </div>
 
         {/* Form */}
@@ -330,11 +452,13 @@ export default function AdminEventsPage() {
         {/* List */}
         {loading ? (
           <p className="text-foreground/60">Loading events...</p>
-        ) : events.length === 0 ? (
-          <p className="text-foreground/60">No events yet. Create one above.</p>
+        ) : filteredEvents.length === 0 ? (
+          <p className="text-foreground/60">
+            {view === "upcoming" ? "No upcoming events." : "No past events."}
+          </p>
         ) : (
           <div className="space-y-3">
-            {events.map((e) => (
+            {filteredEvents.map((e) => (
               <div
                 key={e.id}
                 className="bg-card border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 card-elevated"
@@ -355,26 +479,43 @@ export default function AdminEventsPage() {
                     {e.all_grades ? "All grades" : e.grade_levels.join(", ") || "—"}
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => openEdit(e)}
-                    className="px-3 py-1.5 text-sm border border-border rounded-lg hover:bg-background transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => openNotify(e)}
-                    className="px-3 py-1.5 text-sm border border-primary/40 text-primary rounded-lg hover:bg-primary/10 transition-colors"
-                  >
-                    Notify
-                  </button>
-                  <button
-                    onClick={() => openDelete(e)}
-                    className="px-3 py-1.5 text-sm border border-secondary/40 text-secondary rounded-lg hover:bg-secondary/10 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {view === "upcoming" ? (
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => setViewEvent(e)}
+                      className="px-3 py-1.5 text-sm border border-border rounded-lg hover:bg-background transition-colors"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => openEdit(e)}
+                      className="px-3 py-1.5 text-sm border border-border rounded-lg hover:bg-background transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openNotify(e)}
+                      className="px-3 py-1.5 text-sm border border-primary/40 text-primary rounded-lg hover:bg-primary/10 transition-colors"
+                    >
+                      Notify
+                    </button>
+                    <button
+                      onClick={() => openDelete(e)}
+                      className="px-3 py-1.5 text-sm border border-secondary/40 text-secondary rounded-lg hover:bg-secondary/10 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => setViewEvent(e)}
+                      className="px-3 py-1.5 text-sm border border-border rounded-lg hover:bg-background transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -423,6 +564,74 @@ export default function AdminEventsPage() {
             } already been emailed about this event and will receive it again.`}
         </p>
       </ConfirmDialog>
+
+      {viewEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setViewEvent(null)}
+        >
+          <div
+            className="bg-card border border-border rounded-2xl max-w-lg w-full overflow-hidden card-elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="gradient-primary px-6 py-4">
+              <h3 className="text-lg font-bold text-white leading-tight">{viewEvent.title}</h3>
+              <p className="text-xs text-white/80 mt-0.5">Event details</p>
+            </div>
+            <div className="p-6 space-y-3 text-sm">
+              <div>
+                <span className="w-24 shrink-0 font-semibold text-secondary">Date</span>
+              <span className="text-foreground">
+                {new Date(viewEvent.event_date + "T00:00:00").toLocaleDateString(undefined, {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+              <div>
+                <span className="w-24 shrink-0 font-semibold text-secondary">Time</span>
+              <span className="text-foreground">
+                {viewEvent.start_time
+                  ? `${viewEvent.start_time.slice(0, 5)}${viewEvent.end_time ? " - " + viewEvent.end_time.slice(0, 5) : ""}`
+                  : "All day"}
+              </span>
+            </div>
+              {viewEvent.location && (
+                <div>
+                  <span className="w-24 shrink-0 font-semibold text-secondary">Location</span>
+              <span className="text-foreground">
+                  {viewEvent.location}
+              </span>
+            </div>
+              )}
+              <div>
+                <span className="w-24 shrink-0 font-semibold text-secondary">Grades</span>
+              <span className="text-foreground">
+                {viewEvent.all_grades ? "All grades" : viewEvent.grade_levels.join(", ") || "—"}
+              </span>
+            </div>
+              {viewEvent.description && (
+                <div>
+                  <span className="w-24 shrink-0 font-semibold text-secondary">Description</span>
+              <span className="text-foreground">
+                  {viewEvent.description}
+              </span>
+            </div>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-border flex justify-end bg-background/40">
+              <button
+                onClick={() => setViewEvent(null)}
+                className="px-4 py-2 text-sm font-medium bg-secondary text-white rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -50,13 +50,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const SidebarContent = (
     <>
       <div className="flex items-center gap-3 px-5 py-6">
-        <div className="w-11 h-11 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
-          <Calendar className="w-6 h-6 text-secondary" />
+        <div className="w-20 h-20 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0 overflow-hidden">
+          <img src="/SJA-Logo.png" alt="SJA logo" className="w-16 h-16 object-contain" />
         </div>
-        <div>
-          <div className="text-base font-bold leading-tight">SJA Digital Calendar</div>
-          <div className="text-xs text-foreground/60">Admin area</div>
-        </div>
+        <div className="text-sm font-bold text-foreground">Admin area</div>
       </div>
 
       <div className="px-4 pb-2">

@@ -114,6 +114,9 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center mb-3">
+          <img src="/SJA-Logo.png" alt="SJA logo" className="w-28 h-28 object-contain" />
+        </div>
         <h1 className="text-center text-3xl font-bold text-foreground">
           SJA Digital Calendar
         </h1>

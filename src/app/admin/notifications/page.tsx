@@ -47,6 +47,7 @@ export default function AdminNotificationsPage() {
     "1_month": "1 month before",
     "1_week": "1 week before",
     "3_days": "3 days before",
+    "1_day": "1 day before",
   };
 
   return (
@@ -55,24 +56,9 @@ export default function AdminNotificationsPage() {
         <h1 className="text-xl font-bold">Notification Log</h1>
         <div className="flex items-center justify-between">
           <p className="text-sm text-foreground/60">
-            Emails are sent automatically when an event is posted, and daily for reminders (1 month, 1 week, 3 days before).
+            Emails are sent automatically when an event is posted, and daily for reminders (1 month, 1 week, 3 days, 1 day before).
           </p>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("/api/admin/test-email", { method: "POST" });
-                  const data = await res.json();
-                  if (!res.ok) toast.error(data.error || "Test email failed.");
-                  else toast.success(`Test email sent to ${data.to}.`);
-                } catch {
-                  toast.error("Network error.");
-                }
-              }}
-              className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-background transition-colors"
-            >
-              Test email
-            </button>
             <button
               onClick={async () => {
                 try {

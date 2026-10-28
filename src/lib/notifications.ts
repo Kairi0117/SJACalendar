@@ -1,12 +1,13 @@
 import { supabaseAdmin } from "./supabase/server";
 import { sendEmail } from "./mailer";
 
-export type NotificationType = "posted" | "manual" | "1_month" | "1_week" | "3_days";
+export type NotificationType = "posted" | "manual" | "1_month" | "1_week" | "3_days" | "1_day";
 
 const REMINDER_OFFSETS: { type: NotificationType; days: number }[] = [
   { type: "1_month", days: 30 },
   { type: "1_week", days: 7 },
   { type: "3_days", days: 3 },
+  { type: "1_day", days: 1 },
 ];
 
 // Public base URL of the site, used for links inside emails. Set
@@ -60,7 +61,9 @@ function eventEmailHtml(event: {
       ? "Reminder: 1 month to go"
       : type === "1_week"
       ? "Reminder: 1 week to go"
-      : "Reminder: 3 days to go";
+      : type === "3_days"
+      ? "Reminder: 3 days to go"
+      : "Reminder: 1 day to go";
 
   const subject = `${prefix}: ${event.title}`;
 

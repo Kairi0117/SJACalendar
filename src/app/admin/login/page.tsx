@@ -90,20 +90,11 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="flex items-center gap-3 mb-6 justify-center">
-          <svg className="w-9 h-9 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-            <path
-              d="M24 3 L42 10 V24 C42 35 34 42 24 45 C14 42 6 35 6 24 V10 Z"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              className="text-secondary"
-              fill="transparent"
-            />
-            <rect x="14" y="18" width="20" height="17" rx="2" stroke="currentColor" strokeWidth="2" className="text-foreground" />
-            <line x1="14" y1="24" x2="34" y2="24" stroke="currentColor" strokeWidth="2" className="text-foreground" />
-            <line x1="20" y1="15" x2="20" y2="21" stroke="currentColor" strokeWidth="2" className="text-foreground" />
-            <line x1="28" y1="15" x2="28" y2="21" stroke="currentColor" strokeWidth="2" className="text-foreground" />
-          </svg>
-          <span className="text-lg font-semibold text-foreground">SJA Digital Calendar</span>
+          <img
+            src="/SJA-Logo.png"
+            alt="SJA logo"
+            className="w-36 h-36 shrink-0 object-contain"
+          />
         </div>
 
         {/* Heading tight against the card */}

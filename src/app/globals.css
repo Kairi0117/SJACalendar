@@ -31,7 +31,7 @@
   --color-card: var(--card);
   --color-border: var(--border);
   --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -89,7 +89,7 @@ body {
   background-image: radial-gradient(rgba(74, 52, 42, 0.035) 1px, transparent 1px);
   background-size: 22px 22px;
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-jakarta), Arial, Helvetica, sans-serif;
   min-height: 100vh;
 }
 

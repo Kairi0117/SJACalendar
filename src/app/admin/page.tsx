@@ -212,6 +212,7 @@ export default function AdminDashboard() {
     "1_month": "1 month",
     "1_week": "1 week",
     "3_days": "3 days",
+    "1_day": "1 day",
   };
 
   const stats = [

@@ -7,11 +7,7 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const secret = process.env.CRON_SECRET;
   if (secret && authHeader !== `Bearer ${secret}`) {
-    // Also allow query param for manual testing
-    const q = req.nextUrl.searchParams.get("secret");
-    if (q !== secret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

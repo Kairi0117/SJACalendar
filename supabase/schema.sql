@@ -102,7 +102,7 @@ create table if not exists notification_logs (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references events(id) on delete cascade,
   parent_id uuid not null references parents(id) on delete cascade,
-  type text not null check (type in ('posted','manual','1_month','1_week','3_days')),
+  type text not null check (type in ('posted','manual','1_month','1_week','3_days','1_day')),
   sent_at timestamptz not null default now(),
   status text not null default 'sent',
   unique (event_id, parent_id, type)

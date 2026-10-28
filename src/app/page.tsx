@@ -90,26 +90,17 @@ export default function Home() {
           {/* Brand block */}
           <div>
             <div className="flex items-center gap-4 mb-4">
-              {/* School crest / logo mark */}
-              <svg
-                className="w-12 h-12 shrink-0"
-                viewBox="0 0 48 48"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M24 3 L42 10 V24 C42 35 34 42 24 45 C14 42 6 35 6 24 V10 Z"
-                  stroke="#ffffff"
-                  strokeWidth="2.5"
-                  fill="rgba(255,255,255,0.12)"
+              {/* School logo */}
+              <div className="w-56 h-56 shrink-0 rounded-2xl bg-white/95 p-3 flex items-center justify-center shadow-lg">
+                <img
+                  src="/SJA-Logo.png"
+                  alt="SJA logo"
+                  className="w-full h-full object-contain"
                 />
-                <rect x="14" y="18" width="20" height="17" rx="2" stroke="#ffffff" strokeWidth="2" />
-                <line x1="14" y1="24" x2="34" y2="24" stroke="#ffffff" strokeWidth="2" />
-                <line x1="20" y1="15" x2="20" y2="21" stroke="#ffffff" strokeWidth="2" />
-                <line x1="28" y1="15" x2="28" y2="21" stroke="#ffffff" strokeWidth="2" />
-              </svg>
-              <h1 className="text-3xl xl:text-4xl font-bold leading-tight">
-                SJA Digital Calendar
+              </div>
+              <h1 className="flex flex-col leading-tight font-bold">
+                <span className="text-2xl xl:text-3xl uppercase">ST. JEROME'S ACADEMY</span>
+                <span className="text-4xl xl:text-5xl uppercase">CALENDAR</span>
               </h1>
             </div>
             <p className="text-lg xl:text-xl font-light opacity-85">
